@@ -9,7 +9,7 @@ NODE_NAME="$2"
 IPADDRESS="$3"
 hostn=$(cat /etc/hostname)
 orig_types="master MASTER slave SLAVE"
-DESCRIPTION="Main installation for the Light Weight Cloud Infrastructure Implmentation project\nInstallation installs the following packages:\n*ganglia-monitor\n*vim\n*python-pmi4py\n*libopenmpi-dev\n*openmpi-bin\n*openmpi-doc\n*gmetad (master only)\n*ganglia-webfrontend (master only)\n\nIt sets up the static ipaddress for eth0"
+DESCRIPTION="Main installation for the Light Weight Cloud Infrastructure Implmentation project\nInstallation installs the following packages:\n*ganglia-monitor\n*vim\n*python-pmi4py\n*libopenmpi-dev\n*openmpi-bin\n*openmpi-doc\n*gmetad (master only)\n*ganglia-webfrontend (master only)\n\nThen sets up the static ipaddress for eth0"
 REPORTTO="Report $INSTALLER bugs to conal.dacosta@kurtosys.com\n$TITLE_SHORT home page: <https://github.com/dacostarepublic/LWCII>\nGeneral help using $TITLE_SHORT: <http://dev.dacostarepublic.co.za>"
 
 HEADER () {
@@ -21,7 +21,7 @@ HEADER () {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' ="$(tput cols)"
 }
 USAGE () {
-    printf "Usage: %s [master|slave] <node_name>\n" "$INSTALLER"
+    printf "Usage: %s [master|slave] <node_name> <ip_address>\n" "$INSTALLER"
     echo -e "\n$DESCRIPTION"
     echo -e "\n$REPORTTO"
     exit
