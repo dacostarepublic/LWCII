@@ -46,8 +46,11 @@ MPI_INSTALL() {
 HADOOP_INSTALL() {
     sudo apt-get remove -y oracle-java8-jdk
     sudo apt-get install -y oracle-java7-jdk libjansi-java libjansi-native-java libhawtjni-runtime-java
-    wget http://apache.is.co.za/hadoop/common/hadoop-2.6.3/hadoop-2.6.3.tar.gz
+    wget http://dev.dacostarepublic.co.za/hadoop/hadoop-2.6.3.tar.gz
+    wget http://dev.dacostarepublic.co.za/hadoop/hadoop_conf.tar.gz
     tar -xzvf hadoop-2.6.3.tar.gz
+    tar -xzvf hadoop_conf.tar.gz
+    sudo cp hadoop_conf/* hadoop-2.6.3/etc/hadoop/.
     sudo mv hadoop-2.6.3 /usr/local/.       
     echo "export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-armhf" >> ~/.bashrc
     echo "export HADOOP_HOME=/usr/local/hadoop-2.6.3" >> ~/.bashrc
@@ -60,6 +63,7 @@ HADOOP_INSTALL() {
     echo "export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin" >> ~/.bashrc
     echo "export MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=752M -XX:ReservedCodeCacheSize=752M'" >> ~/.bashrc
     sudo vim /etc/hosts
+    sudo vim /usr/local/hadoop-2.6.3/etc/hadoop/slaves
 }
 SPARK_INSTALL(){
 
