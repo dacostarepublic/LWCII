@@ -40,29 +40,175 @@ CHECK () {
         USAGE
     fi
 }
+MPI_INSTALL() {
+    sudo apt-get install -y python-mpi4py libopenmpi-dev openmpi-bin openmpi-doc
+}
+HADOOP_INSTALL() {
+    sudo apt-get remove -y oracle-java8-jdk
+    sudo apt-get install -y oracle-java7-jdk libjansi-java libjansi-native-java libhawtjni-runtime-java
+    wget http://apache.is.co.za/hadoop/common/hadoop-2.6.3/hadoop-2.6.3.tar.gz
+    tar -xzvf hadoop-2.6.3.tar.gz
+    sudo mv hadoop-2.6.3 /usr/local/.       
+    echo "export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-armhf" >> ~/.bashrc
+    echo "export HADOOP_HOME=/usr/local/hadoop-2.6.3" >> ~/.bashrc
+    echo "export HADOOP_MAPRED_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export HADOOP_COMMON_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export HADOOP_HDFS_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export YARN_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native" >> ~/.bashrc
+    echo "export HADOOP_OPTS='-Djava.library.path=$HADOOP_HOME/lib'" >> ~/.bashrc
+    echo "export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin" >> ~/.bashrc
+    echo "export MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=752M -XX:ReservedCodeCacheSize=752M'" >> ~/.bashrc
+    sudo vim /etc/hosts
+}
+SPARK_INSTALL(){
+
+}
+
+
 MASTER_INSTALL () {
     echo "Installing Master node - $NODE_NAME $IPADDRESS"
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -"$(tput cols)"   
     echo "** Updating apt-get (requires internet)"
-    #sudo apt-get update
+    sudo apt-get update
     echo "** Installing required packages (requires internet)"
-    #sudo apt-get install -y ganglia-monitor gmetad ganglia-webfrontend vim python-mpi4py libopenmpi-dev openmpi-bin openmpi-doc
+    sudo apt-get install -y apache2 ganglia-monitor gmetad ganglia-webfrontend vim 
     echo "** Changing hostname"
-    #sudo sed -i "s/$hostn/$NODE_NAME/g" /etc/hosts
-    #sudo sed -i "s/$hostn/$HODE_NAME/g" /etc/hostname
+    sudo sed -i "s/$hostn/$NODE_NAME/g" /etc/hosts
+    sudo sed -i "s/$hostn/$NODE_NAME/g" /etc/hostname
     echo "** Setting static ipaddress for eth0 (/etc/dhcpch.conf)"
     echo -e "\t-Please enter the router's ipaddress"
     read router_address
     echo -e "\t-Please enter the dns address (usually same as router)"
     read dns_address
-    sudo echo "interface eth0" #>> /etc/dhcpcd.conf
-    sudo echo "inform $IPADDRESS" #>> /etc/dhcpcd.conf
-    sudo echo "static routers=$router_address" #>> /etc/dhcpcd.conf
-    sudo echo "static domain_name_servers=$dns_address" #>> /etc/dhcpcd.conf
+    sudo echo "interface eth0" >> /etc/dhcpcd.conf
+    sudo echo "inform $IPADDRESS" >> /etc/dhcpcd.conf
+    sudo echo "static routers=$router_address" >> /etc/dhcpcd.conf
+    sudo echo "static domain_name_servers=$dns_address" >> /etc/dhcpcd.conf
     echo "** Change Password - pi"
-    #passwd
+    sudo passwd pi
     echo "** Change Password - root"
-    #sudo passwd root
+    sudo passwd root
+    read -p $'Which implementation to install?\n(1) MPI\n(2) Hadoop\n(3) Spark/Scala\n> ' install_option
+    if [ "$install_option" -eq "1" ]; then
+        echo -e "** Installing for MPI"
+        MPI_INSTALL
+    fi
+    if [ "$install_option" -eq "2" ]; then
+        echo -e "** Installing for Hadoop"
+        HADOOP_INSTALL
+        
+    fi
+    if [ "$install_option" -eq "3" ]; then
+        echo -e "** Installing for Spark/Scala"
+        SPARK_INSTALL
+    fi
+    
+    echo "** Changing hostname"
+    sudo sed -i "s/$hostn/$NODE_NAME/g" /etc/hosts
+    sudo sed -i "s/$hostn/$NODE_NAME/g" /etc/hostname
+    echo "** Setting static ipaddress for eth0 (/etc/dhcpch.conf)"
+    echo -e "\t-Please enter the router's ipaddress"
+    read router_address
+    echo -e "\t-Please enter the dns address (usually same as router)"
+    read dns_address
+    sudo echo "interface eth0" >> /etc/dhcpcd.conf
+    sudo echo "inform $IPADDRESS" >> /etc/dhcpcd.conf
+    sudo echo "static routers=$router_address" >> /etc/dhcpcd.conf
+    sudo echo "static domain_name_servers=$dns_address" >> /etc/dhcpcd.conf
+    echo "** Change Password - pi"
+    sudo passwd pi
+    echo "** Change Password - root"
+    sudo passwd root
+    echo ""
+    echo -e "** Installing for Spark/Scala"
+    sudo apt-get remove -y oracle-java8-jdk
+    sudo apt-get install -y oracle-java7-jdk libjansi-java libjansi-native-java libhawtjni-runtime-java
+    wget http://apache.is.co.za/hadoop/common/hadoop-2.6.3/hadoop-2.6.3.tar.gz
+    tar -xzvf hadoop-2.6.3.tar.gz
+    sudo mv hadoop-2.6.3 /usr/local/.
+    echo "export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-armhf" >> ~/.bashrc
+    echo "export HADOOP_HOME=/usr/local/hadoop-2.6.3" >> ~/.bashrc
+    echo "export HADOOP_MAPRED_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export HADOOP_COMMON_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export HADOOP_HDFS_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export YARN_HOME=$HADOOP_HOME" >> ~/.bashrc
+    echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native" >> ~/.bashrc
+    echo "export HADOOP_OPTS='-Djava.library.path=$HADOOP_HOME/lib'" >> ~/.bashrc
+    echo "export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin" >> ~/.bashrc
+    echo "export MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=752M -XX:ReservedCodeCacheSize=752M'" >> ~/.bashrc
+    sudo vim /etc/hosts
+    
+
+}
+SLAVE_INSTALL () {
+    echo "Installing Slave node - $NODE_NAME $IPADDRESS"
+    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -"$(tput cols)"   
+    echo "** Updating apt-get (requires internet)"
+    sudo apt-get update
+    echo "** Installing required packages (requires internet)"
+    sudo apt-get install -y ganglia-monitor vim software-properties-common 
+    read -p $'Which implementation to install?\n(1) MPI\n(2) Hadoop\n(3) Spark/Scala\n> ' install_option
+    if [ "$install_option" -eq "1" ]; then
+        echo -e "** Installing for MPI"
+        sudo apt-get install -y python-mpi4py libopenmpi-dev openmpi-bin openmpi-doc
+    fi
+    if [ "$install_option" -eq "2" ]; then
+        echo -e "** Installing for Hadoop"
+	sudo apt-get remove -y oracle-java8-jdk
+        sudo apt-get install -y oracle-java7-jdk
+        sudo addgroup hadoop
+        sudo adduser --ingroup hadoop hduser
+        
+    fi
+    if [ "$install_option" -eq "3" ]; then
+        echo -e "** Installing for Spark/Scala"
+	sudo apt-get remove -y oracle-java8-jdk
+    sudo apt-get install -y oracle-java7-jdk libjansi-java libjansi-native-java libhawtjni-runtime-java
+	wget http://apache.is.co.za/hadoop/common/hadoop-2.6.3/hadoop-2.6.3.tar.gz
+	tar -xzvf hadoop-2.6.3.tar.gz
+	sudo mv hadoop-2.6.3 /usr/local/.		
+	echo "export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-armhf" >> ~/.bashrc
+	echo "export HADOOP_HOME=/usr/local/hadoop-2.6.3" >> ~/.bashrc
+	echo "export HADOOP_MAPRED_HOME=$HADOOP_HOME" >> ~/.bashrc
+	echo "export HADOOP_COMMON_HOME=$HADOOP_HOME" >> ~/.bashrc
+	echo "export HADOOP_HDFS_HOME=$HADOOP_HOME" >> ~/.bashrc
+	echo "export YARN_HOME=$HADOOP_HOME" >> ~/.bashrc
+	echo "export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native" >> ~/.bashrc
+	echo "export HADOOP_OPTS='-Djava.library.path=$HADOOP_HOME/lib'" >> ~/.bashrc
+	echo "export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin" >> ~/.bashrc
+	echo "export MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=752M -XX:ReservedCodeCacheSize=752M'" >> ~/.bashrc
+
+        wget http://www.scala-lang.org/files/archive/scala-2.11.7.deb
+	sudo dpkg -i scala-2.11.7.deb	
+        sudo apt-get update
+	sudo apt-get install scala
+        sudo apt-get install -y git
+        wget http://archive.apache.org/dist/spark/spark-1.2.2/spark-1.2.2.tgz
+        tar -xzvf spark-1.2.2.tgz
+	sudo apt-get install -y maven
+	echo 'export MAVEN_OPTS="-Xmx2g -XX:MaxPermSize=512M -XX:ReservedCodeCacheSize=512M"' >> ~/.bashrc
+        . ~/.bashrc
+	cd spark-1.2.2
+        sbt/sbt assembly
+        ./bin/run-example SparkPi 10
+    fi
+    echo "** Changing hostname"
+    sudo sed -i "s/$hostn/$NODE_NAME/g" /etc/hosts
+    sudo sed -i "s/$hostn/$NODE_NAME/g" /etc/hostname
+    echo "** Setting static ipaddress for eth0 (/etc/dhcpch.conf)"
+    echo -e "\t-Please enter the router's ipaddress"
+    read router_address
+    echo -e "\t-Please enter the dns address (usually same as router)"
+    read dns_address
+    sudo echo "interface eth0" >> /etc/dhcpcd.conf
+    sudo echo "inform $IPADDRESS" >> /etc/dhcpcd.conf
+    sudo echo "static routers=$router_address" >> /etc/dhcpcd.conf
+    sudo echo "static domain_name_servers=$dns_address" >> /etc/dhcpcd.conf
+    echo "** Change Password - pi"
+    passwd
+    echo "** Change Password - root"
+    sudo passwd root
     echo ""
 
 }
@@ -73,5 +219,8 @@ CHECK
 
 if [[ "master" = "$TYPE" ]]; then
     MASTER_INSTALL
+fi
+if [[ "slave" = "$TYPE" ]]; then
+    SLAVE_INSTALL
 fi 
 
