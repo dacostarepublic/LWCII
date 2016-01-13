@@ -166,7 +166,7 @@ SLAVE_INSTALL () {
     sudo echo "static routers=$router_address" >> /etc/dhcpcd.conf
     sudo echo "static domain_name_servers=$dns_address" >> /etc/dhcpcd.conf
     echo "** Change Password - pi"
-    passwd
+    sudo passwd pi
     echo "** Change Password - root"
     sudo passwd root
     echo ""
